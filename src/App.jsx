@@ -100,13 +100,17 @@ function App() {
   });
 
   return (
-    <div className="flex justify-center w-full min-h-screen bg-[#0a51a8] text-white relative">
+    <div className="relative w-full min-h-screen flex justify-center text-white">
+  <img src="Kerajaan.png" alt="bg" 
+    className="absolute inset-0 w-full h-full object-cover -z-10"
+  />
+
       <header className="absolute top-0 text-xl p-5 bg-[#0929b6] w-full text-center rounded-lg shadow-sm">
         Semangat dan sukses App
       </header>
 
       <main className="pt-36 w-3/4">
-        {/* 🔎 Search bar */}
+        {/* Search bar */}
         <div className="flex justify-center gap-3">
           <input
             className="bg-[#303030] p-4 rounded-2xl w-3/4 shadow-md text-white placeholder:text-gray-400"
