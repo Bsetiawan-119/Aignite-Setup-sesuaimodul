@@ -15,3 +15,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.marquee {
+  display: inline-block;
+  white-space: nowrap; /* keep text on one line (you already have this via Tailwind) */
+  padding-right: 2rem; /* small gap before repeat */
+  animation: marquee 8s linear infinite;
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(100%); } /* start off right */
+  100% { transform: translateX(-100%); } /* move fully left */
+}
