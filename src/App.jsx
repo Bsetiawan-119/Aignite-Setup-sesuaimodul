@@ -101,7 +101,7 @@ function App() {
 
   return (
     <div className="relative w-full min-h-screen flex justify-center text-white">
-  <img src="Kerajaan.png" alt="bg" 
+  <img src="konser.png" alt="bg" 
     className="absolute inset-0 w-full h-full object-cover -z-10"
   />
 
@@ -209,7 +209,7 @@ function App() {
       {/* tombol */}
       <button
         onClick={() => setShowForm(true)}
-        className="fixed bottom-6 left-6 bg-blue-900 hover:bg-blue-700 text-white text-3xl w-12 h-12 rounded-full shadow-lg flex items-center justify-center"
+        className="fixed bottom-6 left-6 bg-blue-400 hover:bg-blue-600 text-white text-3xl w-12 h-12 rounded-full shadow-lg flex items-center justify-center"
         aria-label="Tambah jadwal"
         title="Tambah jadwal"
       >
