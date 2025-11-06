@@ -135,7 +135,7 @@ function App() {
             <hr />
 
             {filteredTasks.map((currentTask, index) => {
-              const autoStatus = getAutoStatus(currentTask); // ✅ gunakan auto-status untuk tampilan
+              const autoStatus = getAutoStatus(currentTask); // auto-status untuk tampilan
               return (
                 <div
                   key={index}
@@ -168,7 +168,7 @@ function App() {
                           Date: {currentTask.date}, Time: {currentTask.time}
                         </span>
                         <span className="text-sm text-gray-300 block">
-                          {/* ✅ tampilkan auto-status (bukan field status statis) */}
+                          {/*  tampilkan auto-status (bukan field status statis) */}
                           Status: {autoStatus}
                         </span>
                       </p>
@@ -212,7 +212,7 @@ function App() {
         +
       </button>
 
-      {/* 🧾 Modal Form Tambah Tugas */}
+      {/*   Form Tambah Tugas */}
       {showForm && (
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-50">
           <div className="bg-[#1f2e43] p-6 rounded-xl w-96">
@@ -262,7 +262,6 @@ function App() {
                 >
                   Batal
                 </button>
-                {/* 🔧 perbaikan kecil: harus submit agar form berjalan */}
                 <button
                   type="submit"
                   className="px-4 py-1 bg-blue-500 rounded hover:bg-blue-600"
