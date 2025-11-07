@@ -186,11 +186,11 @@ Teks: """${naturalText}"""
 
   return (
     <div className="relative w-full min-h-screen flex justify-center text-white">
-      <img src="konser.png" alt="bg" 
+      <img src="BGFIX1.png" alt="bg" 
         className="absolute inset-0 w-full h-full object-cover -z-10"
       />
 
-      <header className="absolute top-0 text-xl p-5 bg-[#0929b6] w-full text-center rounded-lg shadow-sm">
+      <header className="absolute top-0 text-xl p-5 bg-[#154aac] w-full text-center rounded-lg shadow-sm">
         Semangat dan sukses App
       </header>
 
@@ -211,7 +211,7 @@ Teks: """${naturalText}"""
             disabled
             style={{ opacity: 0.3, cursor: "not-allowed" }}
           >
-            <img src="BLADES.png" alt="search" className="w-10 h-10" />
+            <img src="BLADES3.png" alt="search" className="w-10 h-10" />
           </button>
         </div>
 
@@ -223,63 +223,63 @@ Teks: """${naturalText}"""
             <p className="font-semibold text-xl">Daftar Jadwal dan Tugas </p>
             <hr />
 
-            {filteredTasks.map((currentTask, index) => {
-              const autoStatus = getAutoStatus(currentTask);
-              return (
-                <div
-                  key={index}
-                  className={`bg-[#303030] p-4 rounded-2xl shadow-lg flex justify-between items-start gap-4 ${
-                    currentTask.completed ? "opacity-80" : ""
-                  }`}
-                >
-                  <div className="flex gap-4 items-start">
-                    <input
-                      type="checkbox"
-                      checked={!!currentTask.completed}
-                      onChange={() => handleToggleCompleted(index)}
-                      className="mt-1 w-5 h-5"
-                      aria-label={`Toggle ${currentTask.title}`}
-                    />
-                    <div>
-                      <p className="text-base">
-                        <span
-                          className={`text-xl font-semibold ${
-                            currentTask.completed ? "line-through" : ""
-                          }`}
-                        >
-                          {currentTask.title}
-                        </span>
-                        <br />
-                        <span className="text-sm block mt-2">
-                          {currentTask.description}
-                        </span>
-                        <span className="text-sm text-gray-300 block mt-2">
-                          Date: {currentTask.date || "-"}, Time: {currentTask.time || "-"}
-                        </span>
-                        <span className="text-sm text-gray-300 block">
-                          Status: {autoStatus}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
+           {filteredTasks.map((currentTask, index) => {
+  const autoStatus = getAutoStatus(currentTask);
+  return (
+    <div
+      key={index}
+      className={`mt-2 rounded-2xl shadow-lg overflow-hidden border-4 border-yellow-500 ${
+        currentTask.completed ? "opacity-80" : ""
+      }`}
+    >
+      {/* BAGIAN ATAS  */}
+      <div className="bg-[#0396c7] px-4 py-3">
+        <span
+          className={`text-xl font-semibold text-white ${
+            currentTask.completed ? "line-through" : ""
+          }`}
+        >
+          {currentTask.title}
+        </span>
+      </div>
 
-                  <div className="flex flex-col items-end gap-2">
-                    <button
-                      onClick={() => handleRemoveTask(index)}
-                      className="bg-red-600 px-3 py-1 rounded hover:bg-red-700 transition text-sm"
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => handleToggleCompleted(index)}
-                      className="bg-blue-500 px-3 py-1 rounded hover:bg-blue-900 transition text-sm"
-                    >
-                      {currentTask.completed ? "Undo" : "Done"}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+      {/* BAGIAN BAWAH L */}
+      <div className="bg-[#303030] p-4 flex justify-between items-start gap-4">
+        <div className="flex gap-4 items-start">
+          <input
+            type="checkbox"
+            checked={!!currentTask.completed}
+            onChange={() => handleToggleCompleted(index)}
+            className="mt-1 w-5 h-5"
+            aria-label={`Toggle ${currentTask.title}`}
+          />
+          <div>
+            <p className="text-sm mt-2">{currentTask.description}</p>
+            <p className="text-sm text-gray-300 mt-2">
+              Date: {currentTask.date || "-"}, Time: {currentTask.time || "-"}
+            </p>
+            <p className="text-sm text-gray-300">Status: {autoStatus}</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-end gap-2">
+          <button
+            onClick={() => handleRemoveTask(index)}
+            className="bg-red-600 px-3 py-1 rounded hover:bg-red-700 transition text-sm"
+          >
+            Delete
+          </button>
+          <button
+            onClick={() => handleToggleCompleted(index)}
+            className="bg-blue-500 px-3 py-1 rounded hover:bg-blue-900 transition text-sm"
+          >
+            {currentTask.completed ? "Undo" : "Done"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+})}
 
             {filteredTasks.length === 0 && (
               <p className="text-center text-gray-400">
@@ -293,7 +293,7 @@ Teks: """${naturalText}"""
       {/* tombol */}
       <button
         onClick={() => setShowForm(true)}
-        className="fixed bottom-6 left-6 bg-blue-400 hover:bg-blue-600 text-white text-3xl w-12 h-12 rounded-full shadow-lg flex items-center justify-center"
+        className="fixed bottom-7 right-7 bg-blue-400 hover:bg-blue-600 text-white text-3xl w-12 h-12 rounded-full shadow-lg flex items-center justify-center"
         aria-label="Tambah jadwal"
         title="Tambah jadwal"
       >
