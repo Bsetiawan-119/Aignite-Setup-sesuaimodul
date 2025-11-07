@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 function App() {
   // Load awal dari localStorage 
@@ -21,8 +22,9 @@ function App() {
     date: "",
     time: "",
   });
+  const [loadingAI, setLoadingAI] = useState(false);
 
-  // Auto-status berdasarkan tanggal, waktu, dan completed
+  // ===== Helper: status otomatis =====
   const getAutoStatus = (task) => {
     try {
       if (!task) return "Active";
@@ -51,20 +53,103 @@ function App() {
     }
   }, [tasks]);
 
+  async function smartExtractDateTime(naturalText) {
+    const prompt = `
+Kamu adalah "Schedule" yang sangat ketat.
+Tugas: ekstrak TANGGAL dan WAKTU dari teks bebas (Indonesia atau Inggris).
+
+WAJIB Output:
+{"date":"YYYY-MM-DD", "time":"HH:MM"}
+
+Aturan:
+1) Hanya keluarkan JSON VALID persis seperti di atas (tanpa penjelasan, tanpa backticks).
+2) Normalisasi waktu ke 24 jam (HH:MM). Contoh: 5 PM → 17:00, 07.30 → 07:30.
+3) Jika tanggal ATAU waktu TIDAK disebutkan JELAS, isi dengan string kosong "" (jangan menebak).
+4) Abaikan konteks yang tidak relevan (alamat, nomor telp, harga).
+5) Jika ada BANYAK waktu/tanggal, pilih yang paling JELAS terkait acara utama (meeting/due/presentasi). Jika tetap ambigu, pilih yang pertama muncul.
+6) Istilah Indonesia:
+   - "pagi" ≈ AM, "siang/sore/malam" ≈ PM HANYA berlaku jika jam sudah disebutkan.
+   - Jika HANYA ada kata "pagi/siang/sore/malam" TANPA jam → time = "" (jangan tebak jam default).
+7) Istilah relatif ("nanti", "sebentar lagi", "minggu depan", "besok") TANPA tanggal pasti → date = "".
+8) Format tanggal apa pun (DD/MM/YYYY, 12-10-2025, 10 Oct 2025) harus dinormalisasi ke YYYY-MM-DD.
+9) Gunakan bahasa apa pun (ID/EN) tetapi output tetap JSON di atas.
+10) Jangan sertakan spasi ekstra, komentar, atau field lain di luar schema.
+
+Contoh:
+- "Meeting Jumat 5 PM" → {"date":"", "time":"17:00"}
+- "Assignment due 12/10/2025 07:30" → {"date":"2025-10-12", "time":"07:30"}
+- "Presentasi besok pagi" → {"date":"", "time":""}
+- "Rapat 13.00 siang" → {"date":"", "time":"13:00"}
+
+Teks: """${naturalText}"""
+`;
+
+    try {
+      setLoadingAI(true);
+
+      const response = await axios.post(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        {
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": process.env.REACT_APP_GEMINI_API_KEY,
+          },
+          timeout: 15000, // biar gak ngegantung lama
+        }
+      );
+
+      const text =
+        response?.data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+
+      // Coba parse JSON dari jawaban model
+      let parsed = { date: "", time: "" };
+      try {
+        const cleaned = text.replace(/```json|```/g, "").trim();
+        parsed = JSON.parse(cleaned);
+      } catch {
+        parsed = { date: "", time: "" };
+      }
+      const norm = {
+        date: (parsed.date || "").slice(0, 10), 
+        time: (parsed.time || "").slice(0, 5),  
+      };
+      return norm;
+    } finally {
+      setLoadingAI(false);
+    }
+  }
+
   // Tambah tugas via modal
-  const handleAddTaskFromForm = (e) => {
+  const handleAddTaskFromForm = async (e) => {
     e.preventDefault();
-    if (!newTask.title || !newTask.date || !newTask.time) return;
+    if (!newTask.title) return;
+
+    let date = newTask.date?.trim();
+    let time = newTask.time?.trim();
+
+    // Jika user belum isi tanggal/waktu, coba minta Gemini ekstrak dari judul/desc
+    if (!date || !time) {
+      const naturalText = `${newTask.title}. ${newTask.description || ""}`.trim();
+      const ai = await smartExtractDateTime(naturalText);
+      if (!date) date = ai.date || "";
+      if (!time) time = ai.time || "";
+    }
 
     const taskToAdd = {
       title: newTask.title.trim(),
       description: newTask.description?.trim() || "-",
-      date: newTask.date,
-      time: newTask.time,
+      date: date || "",   // bisa kosong jika AI tak yakin
+      time: time || "",   // bisa kosong jika AI tak yakin
       completed: false,
     };
 
-    //  auto-status live
     const withStatus = { ...taskToAdd, status: getAutoStatus(taskToAdd) };
 
     setTasks((prev) => [...prev, withStatus]);
@@ -101,9 +186,9 @@ function App() {
 
   return (
     <div className="relative w-full min-h-screen flex justify-center text-white">
-  <img src="konser.png" alt="bg" 
-    className="absolute inset-0 w-full h-full object-cover -z-10"
-  />
+      <img src="konser.png" alt="bg" 
+        className="absolute inset-0 w-full h-full object-cover -z-10"
+      />
 
       <header className="absolute top-0 text-xl p-5 bg-[#0929b6] w-full text-center rounded-lg shadow-sm">
         Semangat dan sukses App
@@ -139,7 +224,7 @@ function App() {
             <hr />
 
             {filteredTasks.map((currentTask, index) => {
-              const autoStatus = getAutoStatus(currentTask); // auto-status untuk tampilan
+              const autoStatus = getAutoStatus(currentTask);
               return (
                 <div
                   key={index}
@@ -169,10 +254,9 @@ function App() {
                           {currentTask.description}
                         </span>
                         <span className="text-sm text-gray-300 block mt-2">
-                          Date: {currentTask.date}, Time: {currentTask.time}
+                          Date: {currentTask.date || "-"}, Time: {currentTask.time || "-"}
                         </span>
                         <span className="text-sm text-gray-300 block">
-                          {/*  tampilkan auto-status (bukan field status statis) */}
                           Status: {autoStatus}
                         </span>
                       </p>
@@ -213,7 +297,7 @@ function App() {
         aria-label="Tambah jadwal"
         title="Tambah jadwal"
       >
-        +
+        {loadingAI ? "…" : "+"}
       </button>
 
       {/*   Form Tambah Tugas */}
@@ -233,7 +317,7 @@ function App() {
                 required
               />
               <textarea
-                placeholder="Deskripsi"
+                placeholder="Deskripsi (opsional / optional)"
                 value={newTask.description}
                 onChange={(e) =>
                   setNewTask({ ...newTask, description: e.target.value })
@@ -247,7 +331,6 @@ function App() {
                   setNewTask({ ...newTask, date: e.target.value })
                 }
                 className="w-full p-2 rounded bg-gray-700 text-white"
-                required
               />
               <input
                 type="time"
@@ -256,8 +339,10 @@ function App() {
                   setNewTask({ ...newTask, time: e.target.value })
                 }
                 className="w-full p-2 rounded bg-gray-700 text-white"
-                required
               />
+              <p className="text-xs text-gray-300">
+                Tip: Kalau tanggal/waktu kosong nanti ke isi sendiri kalau deskripsi/judulnya mengandung info waktu.
+              </p>
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
@@ -268,9 +353,10 @@ function App() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1 bg-blue-500 rounded hover:bg-blue-600"
+                  className="px-4 py-1 bg-blue-500 rounded hover:bg-blue-600 disabled:opacity-60"
+                  disabled={loadingAI}
                 >
-                  Simpan
+                  {loadingAI ? "Memproses..." : "Simpan"}
                 </button>
               </div>
             </form>
