@@ -196,23 +196,16 @@ Teks: """${naturalText}"""
 
       <main className="pt-36 w-3/4">
         {/* Search bar */}
-        <div className="flex justify-center gap-3">
-          <input
-            className="bg-[#303030] p-4 rounded-2xl w-3/4 shadow-md text-white placeholder:text-gray-400"
-            placeholder="Search by title or description..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={handleKeyDownTitle}
-          />
-          <button
-            className="pl-2 h-12 pt-2 scale-95"
-            aria-label="Search"
-            title="Search"
-            disabled
-            style={{ opacity: 0.3, cursor: "not-allowed" }}
-          >
-            <img src="BLADES3.png" alt="search" className="w-10 h-10" />
-          </button>
+        <div className="flex justify-center w-full">
+          <div className="w-3/4">
+            <input
+              className="bg-[#3a393e] p-4 rounded-2xl w-full shadow-md text-white placeholder:text-gray-400"
+              placeholder="Search by title or description..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleKeyDownTitle}
+            />
+          </div>
         </div>
 
         <div className="p-6"></div>
